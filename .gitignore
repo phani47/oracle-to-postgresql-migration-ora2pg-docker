@@ -1,0 +1,20 @@
+# Password files
+*.env
+.env
+
+# Oracle passwords
+*password*
+*passwd*
+
+# Temporary files
+*.tmp
+*.log
+
+# macOS
+.DS_Store
+
+# Docker
+docker-data/
+
+# Large generated files
+output/data/*.sql
