@@ -1,5 +1,3 @@
-# oracle-to-postgresql-migration-ora2pg-docker
-
 # 🚀 Oracle to PostgreSQL Migration using Docker and Ora2Pg
 
 ## 📌 Project Overview
