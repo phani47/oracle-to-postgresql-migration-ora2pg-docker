@@ -1,0 +1,27 @@
+{
+"ora2pg version": 25.0,
+"Version": "Oracle AI Database 26ai Free Release 23.26.2.0.0",
+"Schema": "HR",
+"Size": "1.56 MB",
+"objects": [{"object":"DATABASE LINK","number":0,"invalid":0,"cost value":0.00,"comment":"Database links will be exported as SQL/MED PostgreSQL's Foreign Data Wrapper (FDW) extensions using oracle_fdw.",
+"details":""}
+,{"object":"GLOBAL TEMPORARY TABLE","number":0,"invalid":0,"cost value":0.00,"comment":"Global temporary table are not supported by PostgreSQL and will not be exported. You will have to rewrite some application code to match the PostgreSQL temporary table behavior.",
+"details":""}
+,{"object":"INDEX","number":19,"invalid":0,"cost value":0.00,"comment":"11 index(es) are concerned by the export, others are automatically generated and will do so on PostgreSQL. Bitmap will be exported as btree_gin index(es). Domain index are exported as b-tree but commented to be edited to mainly use FTS. Cluster, bitmap join and IOT indexes will not be exported at all. Reverse indexes are not exported too, you may use a trigram-based index (see pg_trgm) or a reverse() function based index and search. Use 'varchar_pattern_ops', 'text_pattern_ops' or 'bpchar_pattern_ops' operators in your indexes to improve search with the LIKE operator respectively into varchar, text or char columns.",
+"details":"11 b-tree index(es). "}
+,{"object":"JOB","number":0,"invalid":0,"cost value":0.00,"comment":"Job are not exported. You may set external cron job with them.",
+"details":""}
+,{"object":"PROCEDURE","number":2,"invalid":0,"cost value":0.00,"comment":"Total size of procedure code: 1130 bytes.",
+"details":""}
+,{"object":"SEQUENCE","number":3,"invalid":0,"cost value":0.00,"comment":"Sequences are fully supported, but all call to sequence_name.NEXTVAL or sequence_name.CURRVAL will be transformed into NEXTVAL('sequence_name') or CURRVAL('sequence_name').",
+"details":""}
+,{"object":"SYNONYM","number":0,"invalid":0,"cost value":0.00,"comment":"SYNONYMs will be exported as views. SYNONYMs do not exists with PostgreSQL but a common workaround is to use views or set the PostgreSQL search_path in your session to access object outside the current schema.",
+"details":""}
+,{"object":"TABLE","number":7,"invalid":0,"cost value":0.00,"comment":" 2 check constraint(s).",
+"details":"Total number of rows: 7. Top 10 of tables sorted by number of rows:. jobs has 1 rows. locations has 1 rows. regions has 1 rows. job_history has 1 rows. countries has 1 rows. employees has 1 rows. departments has 1 rows. Top 10 of largest tables:. "}
+,{"object":"TRIGGER","number":2,"invalid":0,"cost value":0.00,"comment":"Total size of trigger code: 0 bytes.",
+"details":""}
+,{"object":"VIEW","number":1,"invalid":0,"cost value":0.00,"comment":"Views are fully supported but can use specific functions.",
+"details":""}
+]
+,"total number":34,"total invalid":0,"total cost":0.00,"human days cost":"1 person-day(s)","migration level":""}

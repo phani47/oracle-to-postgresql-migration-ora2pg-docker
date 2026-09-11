@@ -1,0 +1,1122 @@
+SQL> @/tmp/01_oracle_source_baseline.sql
+SQL> SET FEEDBACK ON
+SQL> SET HEADING ON
+SQL> SET PAGESIZE 5000
+SQL> SET LINESIZE 250
+SQL> SET LONG 100000
+SQL> SET LONGCHUNKSIZE 100000
+SQL> SET TRIMSPOOL ON
+SQL> 
+SQL> COLUMN run_timestamp FORMAT A30
+SQL> 
+SQL> SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') AS run_timestamp
+  2  FROM DUAL;
+
+RUN_TIMESTAMP
+------------------------------
+2026-09-11 16:44:31
+
+1 row selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 1. DATABASE / SCHEMA INFORMATION
+1. DATABASE / SCHEMA INFORMATION
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 SYS_CONTEXT('USERENV', 'DB_NAME') AS database_name,
+  3  	 SYS_CONTEXT('USERENV', 'SERVICE_NAME') AS service_name,
+  4  	 SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AS current_schema,
+  5  	 SYS_CONTEXT('USERENV', 'CON_NAME') AS container_name
+  6  FROM DUAL;
+
+DATABASE_NAME
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SERVICE_NAME
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CURRENT_SCHEMA
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONTAINER_NAME
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FREEPDB1
+freepdb1
+SYS
+FREEPDB1
+
+
+1 row selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 2. OBJECT INVENTORY
+2. OBJECT INVENTORY
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 OBJECT_TYPE,
+  4  	 COUNT(*) AS OBJECT_COUNT
+  5  FROM ALL_OBJECTS
+  6  WHERE OWNER = 'HR'
+  7    AND OBJECT_TYPE IN (
+  8  	   'TABLE',
+  9  	   'INDEX',
+ 10  	   'SEQUENCE',
+ 11  	   'VIEW',
+ 12  	   'PROCEDURE',
+ 13  	   'TRIGGER'
+ 14    )
+ 15  GROUP BY OWNER, OBJECT_TYPE
+ 16  ORDER BY OBJECT_TYPE;
+
+OWNER                                                                                                                            OBJECT_TYPE             OBJECT_COUNT
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- ------------
+HR                                                                                                                               INDEX                             19
+HR                                                                                                                               PROCEDURE                          2
+HR                                                                                                                               SEQUENCE                           3
+HR                                                                                                                               TABLE                              7
+HR                                                                                                                               TRIGGER                            2
+HR                                                                                                                               VIEW                               1
+
+6 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 3. TABLE ROW COUNTS
+3. TABLE ROW COUNTS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER AS SCHEMA_NAME,
+  3  	 TABLE_NAME,
+  4  	 NUM_ROWS AS ROW_COUNT,
+  5  	 LAST_ANALYZED
+  6  FROM ALL_TABLES
+  7  WHERE OWNER = 'HR'
+  8  ORDER BY NUM_ROWS DESC;
+
+SCHEMA_NAM TABLE_NAME                                                                                                                        ROW_COUNT LAST_ANAL
+---------- -------------------------------------------------------------------------------------------------------------------------------- ---------- ---------
+HR         EMPLOYEES                                                                                                                               107 11-SEP-26
+HR         DEPARTMENTS                                                                                                                              27 11-SEP-26
+HR         COUNTRIES                                                                                                                                25 11-SEP-26
+HR         LOCATIONS                                                                                                                                23 11-SEP-26
+HR         JOBS                                                                                                                                     19 11-SEP-26
+HR         JOB_HISTORY                                                                                                                              10 11-SEP-26
+HR         REGIONS                                                                                                                                   4 11-SEP-26
+
+7 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 4. TABLE STORAGE
+4. TABLE STORAGE
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER AS SCHEMA_NAME,
+  3  	 SEGMENT_NAME AS TABLE_NAME,
+  4  	 ROUND(SUM(BYTES) / 1024 / 1024, 2) AS SIZE_MB
+  5  FROM DBA_SEGMENTS
+  6  WHERE OWNER = 'HR'
+  7    AND SEGMENT_TYPE = 'TABLE'
+  8  GROUP BY OWNER, SEGMENT_NAME
+  9  ORDER BY SIZE_MB DESC;
+
+SCHEMA_NAM TABLE_NAME                                                                                                                          SIZE_MB
+---------- -------------------------------------------------------------------------------------------------------------------------------- ----------
+HR         REGIONS                                                                                                                                 .06
+HR         LOCATIONS                                                                                                                               .06
+HR         JOB_HISTORY                                                                                                                             .06
+HR         JOBS                                                                                                                                    .06
+HR         EMPLOYEES                                                                                                                               .06
+HR         DEPARTMENTS                                                                                                                             .06
+
+6 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 5. COLUMN DEFINITIONS
+5. COLUMN DEFINITIONS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 TABLE_NAME,
+  4  	 COLUMN_ID,
+  5  	 COLUMN_NAME,
+  6  	 DATA_TYPE,
+  7  	 DATA_LENGTH,
+  8  	 DATA_PRECISION,
+  9  	 DATA_SCALE,
+ 10  	 NULLABLE,
+ 11  	 DEFAULT_LENGTH,
+ 12  	 CHAR_LENGTH
+ 13  FROM ALL_TAB_COLUMNS
+ 14  WHERE OWNER = 'HR'
+ 15  ORDER BY TABLE_NAME, COLUMN_ID;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME                                                                                                                        COLUMN_ID
+-------------------------------------------------------------------------------------------------------------------------------- ----------
+COLUMN_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+DATA_TYPE                                                                                                                        DATA_LENGTH DATA_PRECISION DATA_SCALE N DEFAULT_LENGTH CHAR_LENGTH
+-------------------------------------------------------------------------------------------------------------------------------- ----------- -------------- ---------- - -------------- -----------
+HR
+COUNTRIES                                                                                                                                 1
+COUNTRY_ID
+CHAR                                                                                                                                       2                           N                          2
+
+HR
+COUNTRIES                                                                                                                                 2
+COUNTRY_NAME
+VARCHAR2                                                                                                                                  40                           Y                         40
+
+HR
+COUNTRIES                                                                                                                                 3
+REGION_ID
+NUMBER                                                                                                                                    22                           Y                          0
+
+HR
+DEPARTMENTS                                                                                                                               1
+DEPARTMENT_ID
+NUMBER                                                                                                                                    22              4          0 N                          0
+
+HR
+DEPARTMENTS                                                                                                                               2
+DEPARTMENT_NAME
+VARCHAR2                                                                                                                                  30                           N                         30
+
+HR
+DEPARTMENTS                                                                                                                               3
+MANAGER_ID
+NUMBER                                                                                                                                    22              6          0 Y                          0
+
+HR
+DEPARTMENTS                                                                                                                               4
+LOCATION_ID
+NUMBER                                                                                                                                    22              4          0 Y                          0
+
+HR
+EMPLOYEES                                                                                                                                 1
+EMPLOYEE_ID
+NUMBER                                                                                                                                    22              6          0 N                          0
+
+HR
+EMPLOYEES                                                                                                                                 2
+FIRST_NAME
+VARCHAR2                                                                                                                                  20                           Y                         20
+
+HR
+EMPLOYEES                                                                                                                                 3
+LAST_NAME
+VARCHAR2                                                                                                                                  25                           N                         25
+
+HR
+EMPLOYEES                                                                                                                                 4
+EMAIL
+VARCHAR2                                                                                                                                  25                           N                         25
+
+HR
+EMPLOYEES                                                                                                                                 5
+PHONE_NUMBER
+VARCHAR2                                                                                                                                  20                           Y                         20
+
+HR
+EMPLOYEES                                                                                                                                 6
+HIRE_DATE
+DATE                                                                                                                                       7                           N                          0
+
+HR
+EMPLOYEES                                                                                                                                 7
+JOB_ID
+VARCHAR2                                                                                                                                  10                           N                         10
+
+HR
+EMPLOYEES                                                                                                                                 8
+SALARY
+NUMBER                                                                                                                                    22              8          2 Y                          0
+
+HR
+EMPLOYEES                                                                                                                                 9
+COMMISSION_PCT
+NUMBER                                                                                                                                    22              2          2 Y                          0
+
+HR
+EMPLOYEES                                                                                                                                10
+MANAGER_ID
+NUMBER                                                                                                                                    22              6          0 Y                          0
+
+HR
+EMPLOYEES                                                                                                                                11
+DEPARTMENT_ID
+NUMBER                                                                                                                                    22              4          0 Y                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          1
+EMPLOYEE_ID
+NUMBER                                                                                                                                    22              6          0 N                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          2
+JOB_ID
+VARCHAR2                                                                                                                                  10                           N                         10
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          3
+MANAGER_ID
+NUMBER                                                                                                                                    22              6          0 Y                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          4
+DEPARTMENT_ID
+NUMBER                                                                                                                                    22              4          0 Y                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          5
+LOCATION_ID
+NUMBER                                                                                                                                    22              4          0 Y                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          6
+COUNTRY_ID
+CHAR                                                                                                                                       2                           Y                          2
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          7
+FIRST_NAME
+VARCHAR2                                                                                                                                  20                           Y                         20
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          8
+LAST_NAME
+VARCHAR2                                                                                                                                  25                           N                         25
+
+HR
+EMP_DETAILS_VIEW                                                                                                                          9
+SALARY
+NUMBER                                                                                                                                    22              8          2 Y                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         10
+COMMISSION_PCT
+NUMBER                                                                                                                                    22              2          2 Y                          0
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         11
+DEPARTMENT_NAME
+VARCHAR2                                                                                                                                  30                           N                         30
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         12
+JOB_TITLE
+VARCHAR2                                                                                                                                  35                           N                         35
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         13
+CITY
+VARCHAR2                                                                                                                                  30                           N                         30
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         14
+STATE_PROVINCE
+VARCHAR2                                                                                                                                  25                           Y                         25
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         15
+COUNTRY_NAME
+VARCHAR2                                                                                                                                  40                           Y                         40
+
+HR
+EMP_DETAILS_VIEW                                                                                                                         16
+REGION_NAME
+VARCHAR2                                                                                                                                  25                           Y                         25
+
+HR
+JOBS                                                                                                                                      1
+JOB_ID
+VARCHAR2                                                                                                                                  10                           N                         10
+
+HR
+JOBS                                                                                                                                      2
+JOB_TITLE
+VARCHAR2                                                                                                                                  35                           N                         35
+
+HR
+JOBS                                                                                                                                      3
+MIN_SALARY
+NUMBER                                                                                                                                    22              6          0 Y                          0
+
+HR
+JOBS                                                                                                                                      4
+MAX_SALARY
+NUMBER                                                                                                                                    22              6          0 Y                          0
+
+HR
+JOB_HISTORY                                                                                                                               1
+EMPLOYEE_ID
+NUMBER                                                                                                                                    22              6          0 N                          0
+
+HR
+JOB_HISTORY                                                                                                                               2
+START_DATE
+DATE                                                                                                                                       7                           N                          0
+
+HR
+JOB_HISTORY                                                                                                                               3
+END_DATE
+DATE                                                                                                                                       7                           N                          0
+
+HR
+JOB_HISTORY                                                                                                                               4
+JOB_ID
+VARCHAR2                                                                                                                                  10                           N                         10
+
+HR
+JOB_HISTORY                                                                                                                               5
+DEPARTMENT_ID
+NUMBER                                                                                                                                    22              4          0 Y                          0
+
+HR
+LOCATIONS                                                                                                                                 1
+LOCATION_ID
+NUMBER                                                                                                                                    22              4          0 N                          0
+
+HR
+LOCATIONS                                                                                                                                 2
+STREET_ADDRESS
+VARCHAR2                                                                                                                                  40                           Y                         40
+
+HR
+LOCATIONS                                                                                                                                 3
+POSTAL_CODE
+VARCHAR2                                                                                                                                  12                           Y                         12
+
+HR
+LOCATIONS                                                                                                                                 4
+CITY
+VARCHAR2                                                                                                                                  30                           N                         30
+
+HR
+LOCATIONS                                                                                                                                 5
+STATE_PROVINCE
+VARCHAR2                                                                                                                                  25                           Y                         25
+
+HR
+LOCATIONS                                                                                                                                 6
+COUNTRY_ID
+CHAR                                                                                                                                       2                           Y                          2
+
+HR
+REGIONS                                                                                                                                   1
+REGION_ID
+NUMBER                                                                                                                                    22                           N                          0
+
+HR
+REGIONS                                                                                                                                   2
+REGION_NAME
+VARCHAR2                                                                                                                                  25                           Y                         25
+
+
+51 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 6. PRIMARY KEY / UNIQUE CONSTRAINTS
+6. PRIMARY KEY / UNIQUE CONSTRAINTS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 TABLE_NAME,
+  4  	 CONSTRAINT_NAME,
+  5  	 CONSTRAINT_TYPE,
+  6  	 STATUS
+  7  FROM ALL_CONSTRAINTS
+  8  WHERE OWNER = 'HR'
+  9    AND CONSTRAINT_TYPE IN ('P', 'U')
+ 10  ORDER BY TABLE_NAME, CONSTRAINT_TYPE, CONSTRAINT_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+CONSTRAINT_NAME                                                                                                                  C STATUS
+-------------------------------------------------------------------------------------------------------------------------------- - --------
+HR
+COUNTRIES
+COUNTRY_C_ID_PK                                                                                                                  P ENABLED
+
+HR
+DEPARTMENTS
+DEPT_ID_PK                                                                                                                       P ENABLED
+
+HR
+EMPLOYEES
+EMP_EMP_ID_PK                                                                                                                    P ENABLED
+
+HR
+EMPLOYEES
+EMP_EMAIL_UK                                                                                                                     U ENABLED
+
+HR
+JOBS
+JOB_ID_PK                                                                                                                        P ENABLED
+
+HR
+JOB_HISTORY
+JHIST_EMP_ID_ST_DATE_PK                                                                                                          P ENABLED
+
+HR
+LOCATIONS
+LOC_ID_PK                                                                                                                        P ENABLED
+
+HR
+REGIONS
+REG_ID_PK                                                                                                                        P ENABLED
+
+
+8 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 7. FOREIGN KEY CONSTRAINTS
+7. FOREIGN KEY CONSTRAINTS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 AC.OWNER,
+  3  	 AC.TABLE_NAME,
+  4  	 AC.CONSTRAINT_NAME,
+  5  	 AC.STATUS,
+  6  	 AC.R_CONSTRAINT_NAME,
+  7  	 AC.R_OWNER
+  8  FROM ALL_CONSTRAINTS AC
+  9  WHERE AC.OWNER = 'HR'
+ 10    AND AC.CONSTRAINT_TYPE = 'R'
+ 11  ORDER BY AC.TABLE_NAME, AC.CONSTRAINT_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+CONSTRAINT_NAME                                                                                                                  STATUS
+-------------------------------------------------------------------------------------------------------------------------------- --------
+R_CONSTRAINT_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+R_OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+HR
+COUNTRIES
+COUNTR_REG_FK                                                                                                                    ENABLED
+REG_ID_PK
+HR
+
+HR
+DEPARTMENTS
+DEPT_LOC_FK                                                                                                                      ENABLED
+LOC_ID_PK
+HR
+
+HR
+DEPARTMENTS
+DEPT_MGR_FK                                                                                                                      ENABLED
+EMP_EMP_ID_PK
+HR
+
+HR
+EMPLOYEES
+EMP_DEPT_FK                                                                                                                      ENABLED
+DEPT_ID_PK
+HR
+
+HR
+EMPLOYEES
+EMP_JOB_FK                                                                                                                       ENABLED
+JOB_ID_PK
+HR
+
+HR
+EMPLOYEES
+EMP_MANAGER_FK                                                                                                                   ENABLED
+EMP_EMP_ID_PK
+HR
+
+HR
+JOB_HISTORY
+JHIST_DEPT_FK                                                                                                                    ENABLED
+DEPT_ID_PK
+HR
+
+HR
+JOB_HISTORY
+JHIST_EMP_FK                                                                                                                     ENABLED
+EMP_EMP_ID_PK
+HR
+
+HR
+JOB_HISTORY
+JHIST_JOB_FK                                                                                                                     ENABLED
+JOB_ID_PK
+HR
+
+HR
+LOCATIONS
+LOC_C_ID_FK                                                                                                                      ENABLED
+COUNTRY_C_ID_PK
+HR
+
+
+10 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 8. CHECK CONSTRAINTS
+8. CHECK CONSTRAINTS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 TABLE_NAME,
+  4  	 CONSTRAINT_NAME,
+  5  	 STATUS,
+  6  	 SEARCH_CONDITION
+  7  FROM ALL_CONSTRAINTS
+  8  WHERE OWNER = 'HR'
+  9    AND CONSTRAINT_TYPE = 'C'
+ 10  ORDER BY TABLE_NAME, CONSTRAINT_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+CONSTRAINT_NAME                                                                                                                  STATUS
+-------------------------------------------------------------------------------------------------------------------------------- --------
+SEARCH_CONDITION
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HR
+COUNTRIES
+COUNTRY_ID_NN                                                                                                                    ENABLED
+"COUNTRY_ID" IS NOT NULL
+
+HR
+DEPARTMENTS
+DEPT_NAME_NN                                                                                                                     ENABLED
+"DEPARTMENT_NAME" IS NOT NULL
+
+HR
+EMPLOYEES
+EMP_EMAIL_NN                                                                                                                     ENABLED
+"EMAIL" IS NOT NULL
+
+HR
+EMPLOYEES
+EMP_HIRE_DATE_NN                                                                                                                 ENABLED
+"HIRE_DATE" IS NOT NULL
+
+HR
+EMPLOYEES
+EMP_JOB_NN                                                                                                                       ENABLED
+"JOB_ID" IS NOT NULL
+
+HR
+EMPLOYEES
+EMP_LAST_NAME_NN                                                                                                                 ENABLED
+"LAST_NAME" IS NOT NULL
+
+HR
+EMPLOYEES
+EMP_SALARY_MIN                                                                                                                   ENABLED
+salary > 0
+
+HR
+JOBS
+JOB_TITLE_NN                                                                                                                     ENABLED
+"JOB_TITLE" IS NOT NULL
+
+HR
+JOB_HISTORY
+JHIST_DATE_INTERVAL                                                                                                              ENABLED
+end_date > start_date
+
+HR
+JOB_HISTORY
+JHIST_EMPLOYEE_NN                                                                                                                ENABLED
+"EMPLOYEE_ID" IS NOT NULL
+
+HR
+JOB_HISTORY
+JHIST_END_DATE_NN                                                                                                                ENABLED
+"END_DATE" IS NOT NULL
+
+HR
+JOB_HISTORY
+JHIST_JOB_NN                                                                                                                     ENABLED
+"JOB_ID" IS NOT NULL
+
+HR
+JOB_HISTORY
+JHIST_START_DATE_NN                                                                                                              ENABLED
+"START_DATE" IS NOT NULL
+
+HR
+LOCATIONS
+LOC_CITY_NN                                                                                                                      ENABLED
+"CITY" IS NOT NULL
+
+HR
+REGIONS
+REGIONS_ID_NN                                                                                                                    ENABLED
+"REGION_ID" IS NOT NULL
+
+
+15 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 9. INDEX INVENTORY
+9. INDEX INVENTORY
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 TABLE_NAME,
+  4  	 INDEX_NAME,
+  5  	 INDEX_TYPE,
+  6  	 UNIQUENESS,
+  7  	 STATUS,
+  8  	 NUM_ROWS,
+  9  	 DISTINCT_KEYS
+ 10  FROM ALL_INDEXES
+ 11  WHERE OWNER = 'HR'
+ 12  ORDER BY TABLE_NAME, INDEX_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+INDEX_NAME                                                                                                                       INDEX_TYPE                  UNIQUENES STATUS     NUM_ROWS DISTINCT_KEYS
+-------------------------------------------------------------------------------------------------------------------------------- --------------------------- --------- -------- ---------- -------------
+HR
+COUNTRIES
+COUNTRY_C_ID_PK                                                                                                                  IOT - TOP                   UNIQUE    VALID            25            25
+
+HR
+DEPARTMENTS
+DEPT_ID_PK                                                                                                                       NORMAL                      UNIQUE    VALID            27            27
+
+HR
+DEPARTMENTS
+DEPT_LOCATION_IX                                                                                                                 NORMAL                      NONUNIQUE VALID            27             7
+
+HR
+EMPLOYEES
+EMP_DEPARTMENT_IX                                                                                                                NORMAL                      NONUNIQUE VALID           106            11
+
+HR
+EMPLOYEES
+EMP_EMAIL_UK                                                                                                                     NORMAL                      UNIQUE    VALID           107           107
+
+HR
+EMPLOYEES
+EMP_EMP_ID_PK                                                                                                                    NORMAL                      UNIQUE    VALID           107           107
+
+HR
+EMPLOYEES
+EMP_JOB_IX                                                                                                                       NORMAL                      NONUNIQUE VALID           107            19
+
+HR
+EMPLOYEES
+EMP_MANAGER_IX                                                                                                                   NORMAL                      NONUNIQUE VALID           106            18
+
+HR
+EMPLOYEES
+EMP_NAME_IX                                                                                                                      NORMAL                      NONUNIQUE VALID           107           107
+
+HR
+JOBS
+JOB_ID_PK                                                                                                                        NORMAL                      UNIQUE    VALID            19            19
+
+HR
+JOB_HISTORY
+JHIST_DEPARTMENT_IX                                                                                                              NORMAL                      NONUNIQUE VALID            10             6
+
+HR
+JOB_HISTORY
+JHIST_EMPLOYEE_IX                                                                                                                NORMAL                      NONUNIQUE VALID            10             7
+
+HR
+JOB_HISTORY
+JHIST_EMP_ID_ST_DATE_PK                                                                                                          NORMAL                      UNIQUE    VALID            10            10
+
+HR
+JOB_HISTORY
+JHIST_JOB_IX                                                                                                                     NORMAL                      NONUNIQUE VALID            10             8
+
+HR
+LOCATIONS
+LOC_CITY_IX                                                                                                                      NORMAL                      NONUNIQUE VALID            23            23
+
+HR
+LOCATIONS
+LOC_COUNTRY_IX                                                                                                                   NORMAL                      NONUNIQUE VALID            23            14
+
+HR
+LOCATIONS
+LOC_ID_PK                                                                                                                        NORMAL                      UNIQUE    VALID            23            23
+
+HR
+LOCATIONS
+LOC_STATE_PROVINCE_IX                                                                                                            NORMAL                      NONUNIQUE VALID            17            17
+
+HR
+REGIONS
+REG_ID_PK                                                                                                                        NORMAL                      UNIQUE    VALID             4             4
+
+
+19 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 10. INDEX COLUMNS
+10. INDEX COLUMNS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 INDEX_OWNER,
+  3  	 TABLE_NAME,
+  4  	 INDEX_NAME,
+  5  	 COLUMN_POSITION,
+  6  	 COLUMN_NAME,
+  7  	 DESCEND
+  8  FROM ALL_IND_COLUMNS
+  9  WHERE INDEX_OWNER = 'HR'
+ 10  ORDER BY TABLE_NAME, INDEX_NAME, COLUMN_POSITION;
+
+INDEX_OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+INDEX_NAME                                                                                                                       COLUMN_POSITION
+-------------------------------------------------------------------------------------------------------------------------------- ---------------
+COLUMN_NAME
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+DESC
+----
+HR
+COUNTRIES
+COUNTRY_C_ID_PK                                                                                                                                1
+COUNTRY_ID
+ASC
+
+HR
+DEPARTMENTS
+DEPT_ID_PK                                                                                                                                     1
+DEPARTMENT_ID
+ASC
+
+HR
+DEPARTMENTS
+DEPT_LOCATION_IX                                                                                                                               1
+LOCATION_ID
+ASC
+
+HR
+EMPLOYEES
+EMP_DEPARTMENT_IX                                                                                                                              1
+DEPARTMENT_ID
+ASC
+
+HR
+EMPLOYEES
+EMP_EMAIL_UK                                                                                                                                   1
+EMAIL
+ASC
+
+HR
+EMPLOYEES
+EMP_EMP_ID_PK                                                                                                                                  1
+EMPLOYEE_ID
+ASC
+
+HR
+EMPLOYEES
+EMP_JOB_IX                                                                                                                                     1
+JOB_ID
+ASC
+
+HR
+EMPLOYEES
+EMP_MANAGER_IX                                                                                                                                 1
+MANAGER_ID
+ASC
+
+HR
+EMPLOYEES
+EMP_NAME_IX                                                                                                                                    1
+LAST_NAME
+ASC
+
+HR
+EMPLOYEES
+EMP_NAME_IX                                                                                                                                    2
+FIRST_NAME
+ASC
+
+HR
+JOBS
+JOB_ID_PK                                                                                                                                      1
+JOB_ID
+ASC
+
+HR
+JOB_HISTORY
+JHIST_DEPARTMENT_IX                                                                                                                            1
+DEPARTMENT_ID
+ASC
+
+HR
+JOB_HISTORY
+JHIST_EMPLOYEE_IX                                                                                                                              1
+EMPLOYEE_ID
+ASC
+
+HR
+JOB_HISTORY
+JHIST_EMP_ID_ST_DATE_PK                                                                                                                        1
+EMPLOYEE_ID
+ASC
+
+HR
+JOB_HISTORY
+JHIST_EMP_ID_ST_DATE_PK                                                                                                                        2
+START_DATE
+ASC
+
+HR
+JOB_HISTORY
+JHIST_JOB_IX                                                                                                                                   1
+JOB_ID
+ASC
+
+HR
+LOCATIONS
+LOC_CITY_IX                                                                                                                                    1
+CITY
+ASC
+
+HR
+LOCATIONS
+LOC_COUNTRY_IX                                                                                                                                 1
+COUNTRY_ID
+ASC
+
+HR
+LOCATIONS
+LOC_ID_PK                                                                                                                                      1
+LOCATION_ID
+ASC
+
+HR
+LOCATIONS
+LOC_STATE_PROVINCE_IX                                                                                                                          1
+STATE_PROVINCE
+ASC
+
+HR
+REGIONS
+REG_ID_PK                                                                                                                                      1
+REGION_ID
+ASC
+
+
+21 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 11. SEQUENCES
+11. SEQUENCES
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 SEQUENCE_OWNER,
+  3  	 SEQUENCE_NAME,
+  4  	 MIN_VALUE,
+  5  	 MAX_VALUE,
+  6  	 INCREMENT_BY,
+  7  	 CYCLE_FLAG,
+  8  	 ORDER_FLAG,
+  9  	 CACHE_SIZE,
+ 10  	 LAST_NUMBER
+ 11  FROM ALL_SEQUENCES
+ 12  WHERE SEQUENCE_OWNER = 'HR'
+ 13  ORDER BY SEQUENCE_NAME;
+
+SEQUENCE_OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+SEQUENCE_NAME                                                                                                                     MIN_VALUE  MAX_VALUE INCREMENT_BY C O CACHE_SIZE LAST_NUMBER
+-------------------------------------------------------------------------------------------------------------------------------- ---------- ---------- ------------ - - ---------- -----------
+HR
+DEPARTMENTS_SEQ                                                                                                                           1       9990           10 N N          0         280
+
+HR
+EMPLOYEES_SEQ                                                                                                                             1 1.0000E+28            1 N N          0         207
+
+HR
+LOCATIONS_SEQ                                                                                                                             1       9900          100 N N          0        3300
+
+
+3 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 12. VIEWS
+12. VIEWS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 VIEW_NAME,
+  4  	 TEXT_LENGTH
+  5  FROM ALL_VIEWS
+  6  WHERE OWNER = 'HR'
+  7  ORDER BY VIEW_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+VIEW_NAME                                                                                                                        TEXT_LENGTH
+-------------------------------------------------------------------------------------------------------------------------------- -----------
+HR
+EMP_DETAILS_VIEW                                                                                                                         573
+
+
+1 row selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 13. PROCEDURES
+13. PROCEDURES
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 OBJECT_NAME,
+  4  	 STATUS
+  5  FROM ALL_OBJECTS
+  6  WHERE OWNER = 'HR'
+  7    AND OBJECT_TYPE = 'PROCEDURE'
+  8  ORDER BY OBJECT_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+OBJECT_NAME                                                                                                                      STATUS
+-------------------------------------------------------------------------------------------------------------------------------- -------
+HR
+ADD_JOB_HISTORY                                                                                                                  VALID
+
+HR
+SECURE_DML                                                                                                                       VALID
+
+
+2 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 14. TRIGGERS
+14. TRIGGERS
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 OWNER,
+  3  	 TRIGGER_NAME,
+  4  	 TABLE_NAME,
+  5  	 TRIGGERING_EVENT,
+  6  	 TRIGGER_TYPE,
+  7  	 STATUS
+  8  FROM ALL_TRIGGERS
+  9  WHERE OWNER = 'HR'
+ 10  ORDER BY TABLE_NAME, TRIGGER_NAME;
+
+OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+TRIGGER_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+TRIGGERING_EVENT
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TRIGGER_TYPE     STATUS
+---------------- --------
+HR
+SECURE_EMPLOYEES
+EMPLOYEES
+INSERT OR UPDATE OR DELETE
+BEFORE STATEMENT DISABLED
+
+HR
+UPDATE_JOB_HISTORY
+EMPLOYEES
+UPDATE
+AFTER EACH ROW   ENABLED
+
+
+2 rows selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT 15. DATA VALIDATION TOTAL
+15. DATA VALIDATION TOTAL
+SQL> PROMPT ============================================================
+============================================================
+SQL> 
+SQL> SELECT
+  2  	 SUM(NUM_ROWS) AS TOTAL_STATISTICS_ROWS
+  3  FROM ALL_TABLES
+  4  WHERE OWNER = 'HR';
+
+TOTAL_STATISTICS_ROWS
+---------------------
+                  215
+
+1 row selected.
+
+SQL> 
+SQL> PROMPT ============================================================
+============================================================
+SQL> PROMPT END OF ORACLE SOURCE BASELINE
+END OF ORACLE SOURCE BASELINE
+SQL> PROMPT ============================================================
+============================================================
+SQL> spool off
